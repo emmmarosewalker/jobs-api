@@ -1,13 +1,10 @@
-module example/data-access
+module example/data-access/listings
 
 go 1.17
 
 require (
-	example/data-access/db v0.0.0-00010101000000-000000000000
-	example/data-access/listings v0.0.0-00010101000000-000000000000
-	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
-	github.com/go-sql-driver/mysql v1.6.0
+	gopkg.in/guregu/null.v4 v4.0.0
 )
 
 require (
@@ -24,10 +21,7 @@ require (
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
 	golang.org/x/sys v0.0.0-20200116001909-b77594299b42 // indirect
-	gopkg.in/guregu/null.v4 v4.0.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 
-replace example/data-access/listings => ./listings
-
-replace example/data-access/db => ./db
+replace example/data-access => ../
