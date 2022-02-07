@@ -2,7 +2,6 @@ package listings
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -74,18 +73,39 @@ func (h *BaseHandler) GetAllListings(c *gin.Context) {
 
 func (h *BaseHandler) PostListing(c *gin.Context) {
 	var listing Listing
-	c.BindJSON(&listing)
+	bindErr := c.BindJSON(&listing)
+
+	if bindErr != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": bindErr})
+		return
+	}
 
 	err := h.addListing(&listing)
 
 	if err != nil {
-		fmt.Printf("postListing: %v", err)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "postListing: check request body"})
-		return
-	}
-	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.JSON(http.StatusOK, listing)
+
+	c.IndentedJSON(http.StatusOK, listing)
+	return
+}
+
+// GetListingById responds to incoming request to query for a listing by id
+func (h *BaseHandler) GetListingById(c *gin.Context) {
+	id := c.Param("id")
+	var listing Listing
+
+	err := h.listingByID(&listing, id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, listing)
 }

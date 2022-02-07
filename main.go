@@ -18,7 +18,8 @@ func main() {
 	router.Use(cors.Default())
 	router.GET("/listings", h.GetAllListings)
 	router.POST("/listings", h.PostListing)
-	router.GET("/listings/:company", h.GetListingsByCompany)
+	router.GET("/listings/company/:company", h.GetListingsByCompany)
+	router.GET("/listings/:id", h.GetListingById)
 
 	router.Run("localhost:7000")
 }

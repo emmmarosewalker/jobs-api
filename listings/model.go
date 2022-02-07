@@ -1,11 +1,13 @@
 package listings
 
+import "fmt"
+
 // listingsByCompany queries for albums that have the specified artist name.
 func (h *BaseHandler) queryListingsByCompany(name string, Listings *[]Listing) error {
-	var listings []Listing
-	err := h.db.Where("company = ?", name).Find(&listings).Error
+	err := h.db.Where("company = ?", name).Find(&Listings).Error
 
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -22,7 +24,7 @@ func (h *BaseHandler) queryAllListings(Listings *[]Listing) error {
 }
 
 // listingByID queries for the listing with the specified ID.
-func (h *BaseHandler) listingByID(Listing *Listing, id int64) error {
+func (h *BaseHandler) listingByID(Listing *Listing, id string) error {
 	// An listing to hold data from the returned row.
 	err := h.db.Where("id = ?", id).First(Listing).Error
 	if err != nil {
