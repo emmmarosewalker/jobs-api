@@ -1,36 +1,34 @@
 package db
 
 import (
-	"database/sql"
-	"log"
 	"os"
 
-	"github.com/go-sql-driver/mysql"
+	"fmt"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-// ConnectDB opens a connection to the database
-func ConnectDB() *sql.DB {
-	// Capture connection properties
-	cfg := mysql.Config{
-		User:                 os.Getenv("DBUSER"),
-		Passwd:               os.Getenv("DBPASS"),
-		Net:                  "tcp",
-		Addr:                 "127.0.0.1:3306",
-		DBName:               "jobs",
-		AllowNativePasswords: true,
-		ParseTime:            true,
-	}
+const DB_NAME = "jobs"
+const DB_HOST = "127.0.0.1"
+const DB_PORT = "3306"
 
-	// Get a database handle.
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+var Db *gorm.DB
+
+func InitDb() *gorm.DB {
+	Db = connectDB()
+	return Db
+}
+
+func connectDB() *gorm.DB {
+	var err error
+	dsn := os.Getenv("DBUSER") + ":" + os.Getenv("DBPASS") + "@tcp" + "(" + DB_HOST + ":" + DB_PORT + ")/" + DB_NAME + "?" + "parseTime=true&loc=Local"
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
+		fmt.Println("Error connecting to database : error=%v", err)
+		return nil
 	}
 
 	return db

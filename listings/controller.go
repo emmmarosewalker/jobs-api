@@ -1,26 +1,17 @@
 package listings
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
+	"gorm.io/gorm"
 )
 
-type BaseHandler struct {
-	db *sql.DB
-}
-
-// NewBaseHandler returns a new BaseHandler
-func NewBaseHandler(db *sql.DB) *BaseHandler {
-	return &BaseHandler{
-		db: db,
-	}
-}
-
 type Listing struct {
+	gorm.Model
 	ID             int64       `json:"id"`
 	Company        string      `json:"company"`
 	Title          string      `json:"title"`
@@ -33,50 +24,68 @@ type Listing struct {
 	BeginDate      null.Time   `json:"beginDate,omitempty"`
 	Compensation   null.Float  `json:"compensation,omitempty"`
 }
+type BaseHandler struct {
+	db *gorm.DB
+}
+
+// NewBaseHandler returns a new BaseHandler
+func NewBaseHandler(db *gorm.DB) *BaseHandler {
+	db.AutoMigrate(&Listing{})
+	return &BaseHandler{
+		db: db,
+	}
+}
 
 // GetListingsByCompany responds to incoming request to query for listings by company
 func (h *BaseHandler) GetListingsByCompany(c *gin.Context) {
-	company := c.Param("company")
+	id := c.Param("company")
+	var listings []Listing
 
-	queried_companies, err := h.queryListingsByCompany(company)
+	err := h.queryListingsByCompany(id, &listings)
 
-	if err == nil {
-		c.IndentedJSON(http.StatusOK, queried_companies)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "listings not found"})
+	c.IndentedJSON(http.StatusOK, listings)
 }
 
 // GetAllListings responds to incoming request for all listings
 func (h *BaseHandler) GetAllListings(c *gin.Context) {
-	listings, err := h.queryAllListings()
+	var listings []Listing
+	err := h.queryAllListings(&listings)
 
-	if err == nil {
-		c.IndentedJSON(http.StatusOK, listings)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "get all listings: listings not found"})
 
+	c.IndentedJSON(http.StatusOK, listings)
 }
 
 func (h *BaseHandler) PostListing(c *gin.Context) {
-	var requestBody Listing
+	var listing Listing
+	c.BindJSON(&listing)
 
-	err := c.BindJSON(&requestBody)
+	err := h.addListing(&listing)
 
 	if err != nil {
 		fmt.Printf("postListing: %v", err)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "postListing: check request body"})
 		return
 	}
-
-	h.addListing(requestBody)
-
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "postListing: could not insert into DB"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-
-	c.IndentedJSON(http.StatusOK, requestBody)
+	c.JSON(http.StatusOK, listing)
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"example/data-access/db"
-	"example/data-access/listings"
+	"github.com/emmmarosewalker/jobs-api/db"
+	"github.com/emmmarosewalker/jobs-api/listings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	database := db.ConnectDB()
+	database := db.InitDb()
 
 	h := listings.NewBaseHandler(database)
 
