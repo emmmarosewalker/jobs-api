@@ -21,7 +21,7 @@ type Listing struct {
 	City           null.String `json:"city,omitempty"`
 	Country        null.String `json:"country,omitempty"`
 	BeginDate      null.Time   `json:"beginDate,omitempty"`
-	Compensation   null.Float  `json:"compensation,omitempty"`
+	Compensation   null.String `json:"compensation,omitempty"`
 }
 type BaseHandler struct {
 	db *gorm.DB

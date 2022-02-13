@@ -13,7 +13,7 @@ CREATE TABLE listings (
   city              VARCHAR(128),
   country           VARCHAR(128),
   begin_date        DATE,
-  compensation      DECIMAL(10,2),
+  compensation      VARCHAR(24),
   deleted_at		DATE,
   created_at		DATE,
   updated_at		DATE,
@@ -21,10 +21,10 @@ CREATE TABLE listings (
   PRIMARY KEY (`ID`)
 );
 
--- INSERT INTO listings
---   (company, title, job_type, job_description, category, street_address, city, country, begin_date, compensation, deleted_at)
--- VALUES
---   ('Apple Inc', 'iOS Developer', 'Full Time', 'Were looking for an iOS Engineer to build on next generation identity product and platform. Since we are building and improving our truly groundbreaking products it would be helpful to have a strong interest and curiosity in one of the following areas: Identification, Authentication, Security and Cryptography. Experience with low level programming language is also a plus and will be useful in developing additional security features of our products. Collaborator with strong communication skills will play a significant part in working multi-functionally with other teams at Apple and external partners.', 'Software', '123 Fake St', 'Sydney', 'Australia', '2022-03-03', 175000.00, null);
+INSERT INTO listings
+  (company, title, job_type, job_description, category, street_address, city, country, begin_date, compensation, deleted_at)
+VALUES
+  ('Apple Inc', 'iOS Developer', 'Full Time', 'Were looking for an iOS Engineer to build on next generation identity product and platform. Since we are building and improving our truly groundbreaking products it would be helpful to have a strong interest and curiosity in one of the following areas: Identification, Authentication, Security and Cryptography. Experience with low level programming language is also a plus and will be useful in developing additional security features of our products. Collaborator with strong communication skills will play a significant part in working multi-functionally with other teams at Apple and external partners.', 'Software', '123 Fake St', 'Sydney', 'Australia', '2022-03-03', "175,000 / year", null);
 
 CREATE TABLE education (
 	ID 				INT AUTO_INCREMENT NOT NULL,
